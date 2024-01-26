@@ -7,9 +7,35 @@ import {
   DASH_ARRAY,
 } from "@/constant/constant";
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { clearCard, removeItem } from "@/services/control/cartSlice";
+import { useAddUsersMutation, useFetchUsersQuery } from "@/services/store";
 
 const DashboardContent = () => {
   const [client, setClient] = useState("");
+  const dispatch = useDispatch();
+  const { quantity, cartItems } = useSelector((store) => store.card);
+  const { data, isError, isFetching } = useFetchUsersQuery();
+  const [addUser, results] = useAddUsersMutation();
+  const handleUserAdd = () => {
+    const userBody = {
+      client: "65a81e8495aaa2e182019ace",
+      psyc: "65b15b6b58f795dd816ba7f6",
+      day: "2024-01-28",
+      time: "12.30",
+    };
+    addUser(userBody);
+  };
+  let content;
+  if (isFetching) {
+    content = <div>Yükleniyor</div>;
+  } else if (isError) {
+    content = <div>Hata Var</div>;
+  } else {
+    content = data.value.clients.map((user) => {
+      return <div key={user.surName}>{user.name}</div>;
+    });
+  }
   return (
     <>
       <div className="flex flex-col dashLayout">
@@ -19,7 +45,7 @@ const DashboardContent = () => {
               id="sfpro"
               className="text-[52px] font-medium leading-[74px] tracking-[1%] text-[#18171A]"
             >
-              Randevu Takvimi
+              {content}
             </div>
             <div
               id="sfpro"
@@ -51,7 +77,7 @@ const DashboardContent = () => {
             <SearchButton />
           </div>
         </div>
-        {DASH_ARRAY.map((item, i) => (
+        {cartItems.map((item, i) => (
           <DashItemCard
             data={item.data}
             key={`Dash ${i}`}
@@ -60,6 +86,10 @@ const DashboardContent = () => {
             active={item.active}
           />
         ))}
+        <button onClick={() => dispatch(removeItem(1))}>Sil</button>
+        <button onClick={handleUserAdd}>
+          {results.isLoading ? "yükleniyor" : "bitti"}
+        </button>
       </div>
     </>
   );

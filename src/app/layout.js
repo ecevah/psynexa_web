@@ -1,17 +1,17 @@
+"use client";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { store } from "../services/store";
+import { Provider } from "react-redux";
 
 const inter = Inter({ subsets: ["latin"] });
-
-export const metadata = {
-  title: "Psynexa",
-  description: "Yapay zeka ile zihninize yolculuk.",
-};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="tr">
-      <body className={inter.className}>{children}</body>
+      <Provider store={store}>
+        <body className={inter.className}>{children}</body>
+      </Provider>
     </html>
   );
 }

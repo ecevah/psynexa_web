@@ -12,6 +12,7 @@ import PastItemCard from "@/components/organisms/dashboard/past_item_card";
 import TestItemCard from "@/components/organisms/dashboard/test_item_card";
 import DashboardContent from "@/components/templates/dashboard/dashboard_content";
 import Header from "@/components/templates/dashboard/header";
+import { UseSelector } from "react-redux";
 
 const Dashboard = () => {
   return (

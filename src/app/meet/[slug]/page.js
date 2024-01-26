@@ -1,7 +1,9 @@
 "use client";
-import { useEffect, useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { useRouter } from "next/navigation";
+import html2canvas from "html2canvas";
+import RecordRTC from "recordrtc";
 
 function randomID(len) {
   let result = "";
@@ -29,6 +31,7 @@ export default function App({ params }) {
   const router = useRouter();
   const roomID = params.slug;
   const myMeetingContainer = useRef();
+  const recorderRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -36,7 +39,6 @@ export default function App({ params }) {
     }
 
     const myMeeting = async () => {
-      // Kit Token üret
       const appID = 441661153;
       const serverSecret = "a19f868ebfb8211bb8a19d30b2107318";
       const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
@@ -77,17 +79,94 @@ export default function App({ params }) {
     };
 
     myMeeting();
-  }, [roomID]);
+  }, [roomID, router]);
 
   if (typeof window === "undefined") {
     return <div>Server tarafında içerik</div>;
   }
 
+  const targetElementRef = useRef(null);
+  const [recordedVideoUrl, setRecordedVideoUrl] = useState(null);
+  const [capturedCanvas, setCapturedCanvas] = useState(null);
+
+  const startRecording = () => {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true, video: true })
+      .then((stream) => {
+        const recorder = RecordRTC(stream, { type: "video" });
+        recorderRef.current = recorder;
+        recorder.startRecording();
+      })
+      .catch((error) => console.error("Error accessing media devices:", error));
+  };
+
+  const stopRecording = () => {
+    if (recorderRef.current) {
+      recorderRef.current.stopRecording(() => {
+        const blob = recorderRef.current.getBlob();
+        const videoUrl = URL.createObjectURL(blob);
+        setRecordedVideoUrl(videoUrl);
+
+        // Add the download link
+        const downloadLink = document.createElement("a");
+        downloadLink.href = videoUrl;
+        downloadLink.download = "recorded-video.mp4";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      });
+    }
+  };
+
+  const captureElement = async () => {
+    const targetElement = myMeetingContainer.current;
+
+    try {
+      const canvas = await html2canvas(targetElement);
+      setCapturedCanvas(canvas.toDataURL()); // Convert canvas to base64 data URL
+    } catch (error) {
+      console.error("Error capturing element:", error);
+    }
+  };
+
   return (
-    <div
-      className="myCallContainer"
-      ref={myMeetingContainer}
-      style={{ width: "100vw", height: "100vh" }}
-    ></div>
+    <>
+      <div
+        className="myCallContainer"
+        ref={myMeetingContainer}
+        style={{ width: "100vw", height: "100vh" }}
+      ></div>
+      <div>
+        <div ref={targetElementRef}>
+          <p>Hello, this is the content you want to capture.</p>
+        </div>
+
+        <button onClick={captureElement}>Capture Element</button>
+        <button onClick={startRecording}>Start Recording</button>
+        <button onClick={stopRecording}>Stop Recording</button>
+
+        {recordedVideoUrl && (
+          <div>
+            <p>Recorded Video:</p>
+            <video controls width="300" height="200">
+              <source src={recordedVideoUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+
+            {/* Add the download link */}
+            <a href={recordedVideoUrl} download="recorded-video.mp4">
+              Download Recorded Video
+            </a>
+          </div>
+        )}
+
+        {capturedCanvas && (
+          <div>
+            <p>Captured Element:</p>
+            <img src={capturedCanvas} alt="Captured Element" />
+          </div>
+        )}
+      </div>
+    </>
   );
 }
