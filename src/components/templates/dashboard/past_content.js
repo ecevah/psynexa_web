@@ -3,9 +3,56 @@ import SearchButton from "@/components/atoms/dashboard/search_button";
 import PastItemCard from "@/components/organisms/dashboard/past_item_card";
 import { ARRAY_TEST_NAME, PAST_ARRAY, PAST_TEXT } from "@/constant/constant";
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  useAddUsersMutation,
+  useFetchUsersQuery,
+  useFetchAfterReservationsQuery,
+  useFetchBeforeReservationsQuery,
+} from "@/services/store";
+import SkeletonItem from "@/components/monecules/dashboard/skelethon_item";
 
 const PastContent = (props) => {
   const [client, setClient] = useState("");
+  const { data, isError, isFetching } = useFetchBeforeReservationsQuery();
+
+  let content;
+  let list;
+  if (isFetching) {
+    content = <SkeletonItem />;
+  } else if (isError) {
+    content = <div>Hata Var</div>;
+  } else {
+    let arr = [];
+    content = (
+      <>
+        {data.reservation.map((item, i) => (
+          <PastItemCard
+            reservation={item._id}
+            name={`${item.client_id.name}_${item.client_id.surName}`}
+            day={item.day}
+            time={item.time}
+            key={`Dash ${i}`}
+            color={item.color}
+            type={"Standart"}
+            active={item.active}
+          />
+        ))}
+      </>
+    );
+    data.reservation.map((item) => {
+      arr.push(`${item.client_id.name} ${item.client_id.surName}`);
+    });
+    const result = arr.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+    list = result.map((item, i) => (
+      <option key={`Name ${i}`} value={item}>
+        {item}
+      </option>
+    ));
+  }
+
   return (
     <>
       <div className="flex flex-col dashLayout">
@@ -37,25 +84,13 @@ const PastContent = (props) => {
                 <option value="" disabled hidden>
                   Ad Soyad
                 </option>
-                {ARRAY_TEST_NAME.map((title, index) => (
-                  <option key={index} value={title}>
-                    {title}
-                  </option>
-                ))}
+                {list}
               </select>
             </div>
             <SearchButton />
           </div>
         </div>
-        {PAST_ARRAY.map((item, i) => (
-          <PastItemCard
-            data={item.data}
-            key={`Dash ${i}`}
-            color={item.color}
-            type={item.type}
-            active={item.active}
-          />
-        ))}
+        {content}
       </div>
     </>
   );

@@ -9,13 +9,18 @@ import {
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCard, removeItem } from "@/services/control/cartSlice";
-import { useAddUsersMutation, useFetchUsersQuery } from "@/services/store";
+import {
+  useAddUsersMutation,
+  useFetchUsersQuery,
+  useFetchAfterReservationsQuery,
+} from "@/services/store";
+import SkeletonItem from "@/components/monecules/dashboard/skelethon_item";
 
 const DashboardContent = () => {
   const [client, setClient] = useState("");
   const dispatch = useDispatch();
   const { quantity, cartItems } = useSelector((store) => store.card);
-  const { data, isError, isFetching } = useFetchUsersQuery();
+  const { data, isError, isFetching } = useFetchAfterReservationsQuery();
   const [addUser, results] = useAddUsersMutation();
   const handleUserAdd = () => {
     const userBody = {
@@ -27,14 +32,39 @@ const DashboardContent = () => {
     addUser(userBody);
   };
   let content;
+  let list;
   if (isFetching) {
-    content = <div>Yükleniyor</div>;
+    content = <SkeletonItem width={800} />;
   } else if (isError) {
     content = <div>Hata Var</div>;
   } else {
-    content = data.value.clients.map((user) => {
-      return <div key={user.surName}>{user.name}</div>;
+    let arr = [];
+    content = (
+      <>
+        {data.reservation.map((item, i) => (
+          <DashItemCard
+            reservation={item._id}
+            name={item.client_id.name}
+            surName={item.client_id.surName}
+            day={item.day}
+            time={item.time}
+            key={`Dash ${i}`}
+            type={"Standart"}
+          />
+        ))}
+      </>
+    );
+    data.reservation.map((item) => {
+      arr.push(`${item.client_id.name} ${item.client_id.surName}`);
     });
+    const result = arr.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+    list = result.map((item, i) => (
+      <option key={`Name ${i}`} value={item}>
+        {item}
+      </option>
+    ));
   }
   return (
     <>
@@ -45,7 +75,7 @@ const DashboardContent = () => {
               id="sfpro"
               className="text-[52px] font-medium leading-[74px] tracking-[1%] text-[#18171A]"
             >
-              {content}
+              Randevu Takvimi
             </div>
             <div
               id="sfpro"
@@ -67,29 +97,13 @@ const DashboardContent = () => {
                 <option value="" disabled hidden>
                   Ad Soyad
                 </option>
-                {ARRAY_TEST_NAME.map((title, index) => (
-                  <option key={index} value={title}>
-                    {title}
-                  </option>
-                ))}
+                {list}
               </select>
             </div>
             <SearchButton />
           </div>
         </div>
-        {cartItems.map((item, i) => (
-          <DashItemCard
-            data={item.data}
-            key={`Dash ${i}`}
-            color={item.color}
-            type={item.type}
-            active={item.active}
-          />
-        ))}
-        <button onClick={() => dispatch(removeItem(1))}>Sil</button>
-        <button onClick={handleUserAdd}>
-          {results.isLoading ? "yükleniyor" : "bitti"}
-        </button>
+        {content}
       </div>
     </>
   );

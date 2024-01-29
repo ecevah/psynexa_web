@@ -4,10 +4,83 @@ import SearchButton from "@/components/atoms/dashboard/search_button";
 import TestItemCard from "@/components/organisms/dashboard/test_item_card";
 import { ARRAY_TEST_NAME, TEST_ARRAY, TEST_TEXT } from "@/constant/constant";
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  useAddTestMutation,
+  useFetchTestQuery,
+  useFetchUsersQuery,
+} from "@/services/store";
+import SkeletonItem from "@/components/monecules/dashboard/skelethon_item";
 
 const TestContent = (props) => {
   const [client, setClient] = useState("");
   const [test, setTest] = useState("");
+  const [selectedUser, setSelectedUser] = useState("");
+
+  const {
+    data: testData,
+    isError: isTestError,
+    isFetching: isTestFetching,
+  } = useFetchTestQuery();
+
+  // Fetch Users Data
+  const {
+    data: userData,
+    isError: isUserError,
+    isFetching: isUserFetching,
+  } = useFetchUsersQuery();
+
+  let content;
+  let list;
+  if (isTestFetching) {
+    content = <SkeletonItem />;
+  } else if (isTestError) {
+    content = <div>Hata Var</div>;
+  } else {
+    let arr = [];
+    content = (
+      <>
+        {testData.tests.map((item, i) => (
+          <TestItemCard
+            time={item.date}
+            text={item.testName}
+            title={`${item.client_id.name} ${item.client_id.surName}`}
+            key={`Dash ${i}`}
+            color={item.color}
+            type={item.date}
+            active={item.active}
+            id={item._id}
+          />
+        ))}
+      </>
+    );
+    testData.tests.map((item) => {
+      arr.push(`${item.client_id.name} ${item.client_id.surName}`);
+    });
+    const result = arr.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+    list = result.map((item, i) => (
+      <option key={`Name ${i}`} value={item}>
+        {item}
+      </option>
+    ));
+  }
+
+  let userList;
+  let userArr = [];
+
+  if (userData) {
+    userData.value.clients.map((item, i) => {
+      userArr.push(`${item.name} ${item.surName}`);
+    });
+    userList = userArr.map((item, i) => (
+      <option key={`User List Name ${i}`} value={item}>
+        {item}
+      </option>
+    ));
+  }
+
   return (
     <>
       <div className="flex flex-col dashLayout">
@@ -38,19 +111,15 @@ const TestContent = (props) => {
                 <select
                   id="sfpro"
                   name="clientName"
-                  value={client}
-                  onChange={(e) => setClient(e.target.value)}
+                  value={selectedUser}
+                  onChange={(e) => setSelectedUser(e.target.value)}
                   required
                   className="w-full bg-transparent"
                 >
                   <option value="" disabled hidden>
                     Ad Soyad
                   </option>
-                  {ARRAY_TEST_NAME.map((title, index) => (
-                    <option key={index} value={title}>
-                      {title}
-                    </option>
-                  ))}
+                  {userList}
                 </select>
               </div>
             </div>
@@ -103,26 +172,14 @@ const TestContent = (props) => {
                   <option value="" disabled hidden>
                     Ad Soyad
                   </option>
-                  {ARRAY_TEST_NAME.map((title, index) => (
-                    <option key={index} value={title}>
-                      {title}
-                    </option>
-                  ))}
+                  {list}
                 </select>
               </div>
               <SearchButton />
             </div>
           </div>
         </div>
-        {TEST_ARRAY.map((item, i) => (
-          <TestItemCard
-            data={item.data}
-            key={`Dash ${i}`}
-            color={item.color}
-            type={item.type}
-            active={item.active}
-          />
-        ))}
+        {content}
       </div>
     </>
   );

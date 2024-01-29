@@ -1,5 +1,8 @@
 /*----------------------URL----------------------*/
-export const URL = "http://192.168.1.7:3001/";
+export const URL = "http://127.0.0.1:3001/";
+
+export const TOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwc3ljaG9sb2dpc3QiOnsiX2lkIjoiNjVhODI2NGUyMTY0ODg0ZWYyZjc1M2E5IiwibmFtZSI6IlBzeWMgQWhtZXQiLCJzdXJOYW1lIjoiRWNldml0IiwicGFzcyI6IiQyYSQwOCR1bVpYeTU3VXFudnVmdEZ4emZCNW8uSVN1QUFzNHk5b1BBYU1uR1YwWFRzVGdwakRjZVNMUyIsImVNYWlsIjoiZWVjZXZhaEBnbWFpbC5jb20iLCJ0YWciOlsidXptYW4iXSwiaW1hZ2UiOiJpbWFnZS0xNzA1NTE4NjcwODUwLmpwZWciLCJ1bnZhbiI6ImtsaW5payBwc2lrb2xvaCIsInN0YXIiOltdLCJzdGFyQXZnIjpbXSwiYWN0aXZlIjpmYWxzZSwiYWNjQWN0aXZlIjp0cnVlLCJjcmVhdGVBdCI6IjIwMjQtMDEtMTdUMTk6MTE6MTAuODcyWiIsInVwZGF0ZUF0IjoiMjAyNC0wMS0xN1QxOToxMToxMC44NzJaIiwiX192IjowfSwiaWF0IjoxNzA1NTIwMTM1fQ.ad3WLnfmxtpnob3kSqVRZHtUZuOv8nX-CMkQHHdRth4";
 
 /*----------------------IMAGE----------------------*/
 //SVG Path
@@ -744,10 +747,12 @@ export const ARRAY_DASHBOARD_HEADER_ITEM_BUTTON = [
 ];
 
 export const ARRAY_TEST_NAME = [
-  "Ahmet Ecevit",
-  "Kübra Ecevit",
-  "Ayşegül Duygu",
-  "Zeren Keskin",
+  "Depresyon Testi",
+  "Demans Testi",
+  "Stres Testi",
+  "O Testi",
+  "Bu Testi",
+  "Şu Testi",
 ];
 
 export const MIDDEL_DEPRESSION_OBJECT = {

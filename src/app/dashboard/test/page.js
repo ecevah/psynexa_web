@@ -1,14 +1,14 @@
 "use client";
 import Header from "@/components/templates/dashboard/header";
+import PageWrapper from "@/components/templates/dashboard/page_wrapper";
 import TestContent from "@/components/templates/dashboard/test_content";
 
 const Test = (props) => {
   return (
     <>
-      <div className="flex flex-col pb-[160px] bg-dashboardBg bg-cover bg-top">
-        <Header />
+      <PageWrapper>
         <TestContent />
-      </div>
+      </PageWrapper>
     </>
   );
 };

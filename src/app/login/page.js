@@ -2,22 +2,30 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { EYE, EYE_OFF, GRAY_LOGO, LOGIN_MINI_LOGO } from "@/constant/constant";
+import {
+  EYE,
+  EYE_OFF,
+  GRAY_LOGO,
+  LOGIN_MINI_LOGO,
+  URL,
+} from "@/constant/constant";
 import MiniLogo from "@/components/atoms/login_register/mini_logo";
 import Fixed_Icon from "@/components/atoms/login_register/fixed_icon";
 import Purple_Button from "@/components/atoms/login_register/purple_button";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [show, setShow] = useState(true);
+  const router = useRouter();
 
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passError, setPassError] = useState("");
+  const [show, setShow] = useState(true);
   const validateLogin = async () => {
     setEmailError("");
-    setPasswordError("");
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
+    setPassError("");
+    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
 
     let hasErrors = false;
 
@@ -26,43 +34,44 @@ const Login = () => {
       hasErrors = true;
     }
 
-    if (!password) {
-      setPasswordError("Üzgünüm, ancak bu alan boş bırakılamaz.");
+    /*if (!pass) {
+      setPassError("Üzgünüm, ancak bu alan boş bırakılamaz.");
       hasErrors = true;
-    } else if (!passwordRegex.test(password)) {
-      setPasswordError(
+    } else if (!passRegex.test(pass)) {
+      setPassError(
         "Şifreniz en az 8 karakter uzunluğunda olmalıdır, en az bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir."
       );
       hasErrors = true;
-    }
+    }*/
 
     if (!hasErrors) {
-      alert("şlqdasş");
-      return;
-    }
-
-    // If you want to set setCheck(true) here, uncomment the line below
-    // setCheck(true);
-
-    /*try {
-        const response = await fetch("/api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email, password }),
+      try {
+        const response = await fetch(`${URL}api/psyc/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, pass }),
         });
-
-        if (response.ok) {
-            alert("Giriş başarılı!");
+        const responseData = await response.json();
+        if (responseData.status) {
+          const token = responseData.token;
+          const id = responseData.psychologist._id;
+          localStorage.setItem("token", token);
+          localStorage.setItem("id", id);
+          console.log(responseData.psychologist._id);
+          router.push(`/dashboard`);
         } else {
-            const errorData = await response.json();
-            alert(`Giriş başarısız: ${errorData.message}`);
+          const errorData = await response.json();
+          console.error("Giriş hatası:", errorData);
+          alert(`Giriş başarısız: ${errorData.message}`);
         }
-    } catch (error) {
+      } catch (error) {
         console.error("Giriş hatası:", error);
         alert("Bir hata oluştu. Lütfen tekrar deneyin.");
-    }*/
+      }
+      return;
+    }
   };
 
   return (
@@ -78,7 +87,7 @@ const Login = () => {
           placeholder="E-posta"
           required
           className={`w-[350px] h-[50px] border-solid border-[1px] border-loginRegisterInputBorder rounded-[5px] mt-[50px] px-[16px] py-[12px] focus:outline-none focus:border-purple focus:border-[1.5px] ${
-            passwordError && "!border-solid !border-loginRed !border-[1px]"
+            passError && "!border-solid !border-loginRed !border-[1px]"
           }`}
         />
         {emailError && (
@@ -92,15 +101,15 @@ const Login = () => {
 
         <div className="relative">
           <input
-            type={show ? "password" : "text"}
-            id="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            type={show ? "pass" : "text"}
+            id="pass"
+            name="pass"
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
             placeholder="Şifre"
             required
             className={`w-[350px] h-[50px] border-solid border-[1px] border-loginRegisterInputBorder rounded-[5px] pl-[16px] pr-[40px] py-[12px] mt-[15px] focus:outline-none focus:border-purple focus:border-[1.5px] ${
-              passwordError && "!border-solid !border-loginRed !border-[1px]"
+              passError && "!border-solid !border-loginRed !border-[1px]"
             }`}
           />
           <Image
@@ -112,19 +121,19 @@ const Login = () => {
             onClick={() => setShow(!show)}
           />
         </div>
-        {passwordError && (
+        {passError && (
           <div
             id="sfpro"
             className="text-[12px] leading-[20px] font-normal text-loginRed w-[350px] mt-[5px]"
           >
-            {passwordError}
+            {passError}
           </div>
         )}
 
         <Purple_Button text="Giriş Yap" function={validateLogin} />
 
         <Link
-          href="/password"
+          href="/pass"
           id="sfpro"
           className="text-purple text-[14px] leading-[21px] font-normal mt-[20px] mb-[50px]"
         >

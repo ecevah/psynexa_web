@@ -3,13 +3,11 @@ import { DASH_ARRAY } from "@/constant/constant";
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  cartItems: DASH_ARRAY,
-  quantity: 0,
-  total: 0,
+  token: "",
 };
 
-const cardSlice = createSlice({
-  name: "card",
+const controlSlice = createSlice({
+  name: "control",
   initialState,
   reducers: {
     clearCard: (state) => {
@@ -19,9 +17,12 @@ const cardSlice = createSlice({
       const itemId = actions.payload;
       state.cartItems.splice(itemId, 1);
     },
+    setToken: (state, action) => {
+      state.token = action.payload;
+    },
   },
 });
 
-export const { clearCard, removeItem } = cardSlice.actions;
+export const { clearCard, removeItem, setToken } = controlSlice.actions;
 
-export default cardSlice.reducer;
+export default controlSlice.reducer;
